@@ -22,16 +22,26 @@ Rakip oyuncunun tag'ini girersin (`#XXXXXXXX`), uygulama:
 flutter pub get
 ```
 
-### 2. API token
-1. [developer.clashroyale.com](https://developer.clashroyale.com) → kayıt ol
-2. **Create New Key** ile bir token üret. Token alırken kendi IP adresini gir ([whatismyip.com](https://whatismyip.com)).
-3. `.env.example` dosyasını `.env` olarak kopyala, token'ı yapıştır.
+### 2. API token (RoyaleAPI proxy ile takım kullanımı)
+
+9 kişilik takımda her birimizin IP'si farklı olduğundan, **RoyaleAPI'nin ücretsiz proxy** hizmetini kullanıyoruz. Tek token ile herkesin makinesinde çalışır.
+
+1. [developer.clashroyale.com](https://developer.clashroyale.com) → Supercell hesabınla giriş yap
+2. **Create New Key** tıkla
+3. Anahtar bilgileri:
+   - **Name:** `cr-analyze-team` (veya istediğin)
+   - **Description:** Anti-deck tool — Seeok team
+   - **IP Addresses:** `45.79.218.79` ← **kendi IP'n değil, bu!** (RoyaleAPI proxy IP'si)
+4. Üretilen token'ı al
+5. `.env.example` dosyasını `.env` olarak kopyala, token'ı yapıştır:
 
 ```bash
 cp .env.example .env
 ```
 
-> `.env` dosyası `.gitignore` ile koruma altında — commit edilmemelidir.
+> `.env` dosyası `.gitignore` ile koruma altında — commit edilmemelidir. Token'ı paylaşmak istersen ekibe Discord/güvenli kanaldan ilet.
+
+> **Neden proxy?** Supercell token'ları IP'ye bağlı. Takım çalışmasında ve deploy ortamlarında IP sürekli değişir → her seferinde yeni token üretmek pratik değil. RoyaleAPI proxy bizim için sabit bir IP sağlıyor: `45.79.218.79`. Uygulama otomatik olarak `https://proxy.royaleapi.dev/v1` üzerinden gidiyor.
 
 ### 3. Çalıştır
 

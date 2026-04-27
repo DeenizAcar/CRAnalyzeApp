@@ -22,4 +22,9 @@ class BattleModel {
   });
 
   bool get playerWon => playerCrowns > opponentCrowns;
+
+  /// İki maç eş benzerse aynı, dedupe için. battleTime + opponentTag yeterince
+  /// ayırt edici (aynı oyuncu aynı saniyede iki ayrı rakibe karşı oynayamaz).
+  String get id =>
+      '${battleTime.toUtc().toIso8601String()}|$playerTag|$opponentTag';
 }

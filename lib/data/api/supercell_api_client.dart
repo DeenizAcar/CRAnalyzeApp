@@ -8,13 +8,19 @@ import '../models/player.dart';
 import 'cr_api_client.dart';
 
 class SupercellApiClient implements CRApiClient {
-  static const String _baseUrl = 'https://api.clashroyale.com/v1';
+  static const String directBaseUrl = 'https://api.clashroyale.com/v1';
+  static const String royaleApiProxyBaseUrl = 'https://proxy.royaleapi.dev/v1';
 
   final String _token;
+  final String _baseUrl;
   final http.Client _http;
 
-  SupercellApiClient({required String token, http.Client? httpClient})
-      : _token = token,
+  SupercellApiClient({
+    required String token,
+    String baseUrl = royaleApiProxyBaseUrl,
+    http.Client? httpClient,
+  })  : _token = token,
+        _baseUrl = baseUrl,
         _http = httpClient ?? http.Client();
 
   Map<String, String> get _headers => {
@@ -58,16 +64,50 @@ class SupercellApiClient implements CRApiClient {
 
   @override
   Future<List<BattleModel>> getBattleLog(String playerTag) async {
+    final raw = await getBattleLogRaw(playerTag);
+    return raw.map(parseBattle).toList();
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getBattleLogRaw(String playerTag) async {
     final url = Uri.parse('$_baseUrl/players/${_encodeTag(playerTag)}/battlelog');
     final res = await _http.get(url, headers: _headers);
     if (res.statusCode != 200) {
       throw CRApiException(res.body, statusCode: res.statusCode);
     }
     final list = jsonDecode(res.body) as List;
-    return list.cast<Map<String, dynamic>>().map(_parseBattle).toList();
+    return list.cast<Map<String, dynamic>>();
   }
 
-  BattleModel _parseBattle(Map<String, dynamic> json) {
+  @override
+  Future<List<Map<String, dynamic>>> getCardsRaw() async {
+    final url = Uri.parse('$_baseUrl/cards');
+    final res = await _http.get(url, headers: _headers);
+    if (res.statusCode != 200) {
+      throw CRApiException(res.body, statusCode: res.statusCode);
+    }
+    final json = jsonDecode(res.body) as Map<String, dynamic>;
+    final items = (json['items'] as List).cast<Map<String, dynamic>>();
+    return items;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getPathOfLegendsRanking(
+    String locationId, {
+    int limit = 50,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl/locations/$locationId/pathoflegend/players?limit=$limit',
+    );
+    final res = await _http.get(url, headers: _headers);
+    if (res.statusCode != 200) {
+      throw CRApiException(res.body, statusCode: res.statusCode);
+    }
+    final json = jsonDecode(res.body) as Map<String, dynamic>;
+    return (json['items'] as List? ?? []).cast<Map<String, dynamic>>();
+  }
+
+  static BattleModel parseBattle(Map<String, dynamic> json) {
     final team = (json['team'] as List).first as Map<String, dynamic>;
     final opponent = (json['opponent'] as List).first as Map<String, dynamic>;
 
@@ -92,10 +132,20 @@ class SupercellApiClient implements CRApiClient {
     );
   }
 
-  DateTime _parseBattleTime(String raw) {
+  static DateTime _parseBattleTime(String raw) {
     final iso =
         '${raw.substring(0, 4)}-${raw.substring(4, 6)}-${raw.substring(6, 11)}:${raw.substring(11, 13)}:${raw.substring(13, 15)}Z';
     return DateTime.parse(iso);
+  }
+
+  /// Ham JSON'dan stabil ID üret (cache dedupe için).
+  static String battleIdFromRaw(Map<String, dynamic> json) {
+    final battleTime = json['battleTime'] as String? ?? '';
+    final team = (json['team'] as List?)?.first as Map<String, dynamic>?;
+    final opponent = (json['opponent'] as List?)?.first as Map<String, dynamic>?;
+    final playerTag = team?['tag'] as String? ?? '';
+    final opponentTag = opponent?['tag'] as String? ?? '';
+    return '$battleTime|$playerTag|$opponentTag';
   }
 
   @override

@@ -6,6 +6,19 @@ abstract class CRApiClient {
 
   Future<List<BattleModel>> getBattleLog(String playerTag);
 
+  /// Ham battlelog JSON'u — cache için kullanılır (yeni alan gelirse kaybetmemek).
+  Future<List<Map<String, dynamic>>> getBattleLogRaw(String playerTag);
+
+  /// Tum kart katalogunu cek (~120 kart, name + iconUrls).
+  Future<List<Map<String, dynamic>>> getCardsRaw();
+
+  /// Bir bolgenin Path of Legends top oyuncu siralamasi.
+  /// locationId 'global' icin global, '57000239' Turkey vb.
+  Future<List<Map<String, dynamic>>> getPathOfLegendsRanking(
+    String locationId, {
+    int limit = 50,
+  });
+
   Future<void> dispose();
 }
 
