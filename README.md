@@ -45,17 +45,21 @@ cp .env.example .env
 
 ### 3. Çalıştır
 
-Windows masaüstü:
+**Web (geliştirme için tavsiye):**
+
+```powershell
+.\crun         # Windows PowerShell / cmd (crun.bat çalıştırılır)
+./crun         # Mac / Linux / git-bash
+```
+
+Bu wrapper, RoyaleAPI proxy ve api-assets.clashroyale.com için CORS engelini açan bayraklarla Chrome'u başlatır. `flutter run -d chrome` doğrudan çalıştırırsan kart resimleri ve meta verisi tarayıcı tarafından engellenir.
+
+**Windows masaüstü (.exe build):**
 ```bash
 flutter run -d windows
 ```
 
-> Not: Windows derlemesi için Visual Studio'da "Desktop development with C++" workload'ı gerekli (`flutter doctor` ile kontrol et).
-
-Web (test için):
-```bash
-flutter run -d chrome
-```
+> Visual Studio'da "Desktop development with C++" workload'ı gerekli (`flutter doctor` ile kontrol et).
 
 ## Klasör yapısı
 

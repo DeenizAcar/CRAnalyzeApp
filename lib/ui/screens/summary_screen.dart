@@ -10,9 +10,11 @@ import '../../engine/opponent_analyzer.dart';
 import '../../engine/recommendation_engine.dart';
 import '../../engine/rule_based_engine.dart';
 import '../../engine/vulnerability_analyzer.dart';
+import '../widgets/card_picker_grid.dart';
+import '../widgets/played_cards_summary.dart';
 import 'detail_screen.dart';
 
-class SummaryScreen extends StatelessWidget {
+class SummaryScreen extends StatefulWidget {
   final OpponentAnalysis analysis;
   final List<MetaDeck>? metaPool;
   final List<MatchupRecord>? matchupRecords;
@@ -24,18 +26,38 @@ class SummaryScreen extends StatelessWidget {
     this.matchupRecords,
   });
 
+  @override
+  State<SummaryScreen> createState() => _SummaryScreenState();
+}
+
+class _SummaryScreenState extends State<SummaryScreen> {
+  final Set<String> _playedCards = {};
+
   RecommendationEngine _buildEngine() {
-    final pool = metaPool;
-    final records = matchupRecords;
+    final pool = widget.metaPool;
+    final records = widget.matchupRecords;
     if (pool != null && records != null && records.isNotEmpty) {
       return MatchupEngine(pool: pool, scorer: MatchupScorer(records));
     }
     return RuleBasedEngine(pool: pool);
   }
 
+  void _toggleCard(String name) {
+    setState(() {
+      if (_playedCards.contains(name)) {
+        _playedCards.remove(name);
+      } else {
+        _playedCards.add(name);
+      }
+    });
+  }
+
+  void _clearPlayed() => setState(_playedCards.clear);
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final analysis = widget.analysis;
     final p = analysis.profile;
     final engine = _buildEngine();
 
@@ -76,14 +98,30 @@ class SummaryScreen extends StatelessWidget {
             _CompactVulnerability(missing: missing)
           else if (analysis.deckUsages.isNotEmpty)
             _NoVulnerabilityNote(),
+          const SizedBox(height: 14),
+          PlayedCardsSummary(playedCards: _playedCards),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF12172A),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: CardPickerGrid(
+              selectedNames: _playedCards,
+              onToggle: _toggleCard,
+              onClearAll: _clearPlayed,
+            ),
+          ),
           const SizedBox(height: 20),
           FilledButton.icon(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => DetailScreen(
-                  analysis: analysis,
-                  metaPool: metaPool,
-                  matchupRecords: matchupRecords,
+                  analysis: widget.analysis,
+                  metaPool: widget.metaPool,
+                  matchupRecords: widget.matchupRecords,
                 ),
               ),
             ),
@@ -101,6 +139,7 @@ class SummaryScreen extends StatelessWidget {
   }
 
   DeckRecommendation? _resolveTopRecommendation(RecommendationEngine engine) {
+    final analysis = widget.analysis;
     if (analysis.deckUsages.isEmpty) return null;
     if (engine is MatchupEngine && analysis.deckUsages.length > 1) {
       final list = engine.recommendCombined(

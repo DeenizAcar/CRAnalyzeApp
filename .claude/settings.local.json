@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(cd c:\\\\GitHub\\\\CRAnalyzeApp; powershell -ExecutionPolicy Bypass -File tool/run_web.ps1)"
+      "PowerShell(cd c:\\\\GitHub\\\\CRAnalyzeApp; powershell -ExecutionPolicy Bypass -File tool/run_web.ps1)",
+      "Bash(flutter pub *)",
+      "Bash(rm lib/utils/env_io.dart lib/utils/env_web.dart)",
+      "Bash(flutter analyze *)",
+      "Bash(curl -sI -H \"Origin: http://localhost:8765\" \"https://api-assets.clashroyale.com/cards/300/jAj1Q5rclXxU9kVImGqSJxa4wEMfEhvwNQ_4jiGUuqg.png\")"
     ]
   }
 }

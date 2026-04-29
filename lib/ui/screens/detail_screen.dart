@@ -10,7 +10,7 @@ import '../../engine/rule_based_engine.dart';
 import '../../engine/vulnerability_analyzer.dart';
 import '../../engine/win_condition.dart';
 import '../widgets/anti_deck_block.dart';
-import '../widgets/deck_card.dart';
+import '../widgets/interactive_deck_block.dart';
 import '../widgets/vulnerability_block.dart';
 
 class DetailScreen extends StatelessWidget {
@@ -100,7 +100,7 @@ class DetailScreen extends StatelessWidget {
               final winCond = detectWinCondition(u.deck);
               final recs = engine.recommendForDeck(u.deck, maxResults: 5);
               return [
-                DeckCardWidget(
+                InteractiveDeckBlock(
                   deck: u.deck,
                   title: '${u.count} kez kullanıldı  (W:${u.wins} L:$losses)',
                 ),

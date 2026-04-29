@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Flutter web'i CORS-disabled Chrome ile baslatir (bash / git-bash / mac / linux).
+# Kullanim:  ./crun       (port 8765)
+# Opsiyonel: ./crun 9000  (farkli port)
+
+set -e
+
+PORT="${1:-8765}"
+STAMP=$(date +%H%M%S)
+
+if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* ]]; then
+    USERDIR="C:/temp/cr-flutter-$STAMP"
+else
+    USERDIR="/tmp/cr-flutter-$STAMP"
+fi
+mkdir -p "$USERDIR"
+
+if [[ ! -f .env ]]; then
+    echo "HATA: .env dosyasi bulunamadi."
+    echo ".env.example dosyasini .env olarak kopyala ve CR_API_TOKEN'i yapistir."
+    exit 1
+fi
+
+echo "Flutter web baslatiliyor (port $PORT)..."
+exec flutter run -d chrome \
+    --web-port="$PORT" \
+    --web-browser-flag="--disable-web-security" \
+    --web-browser-flag="--user-data-dir=$USERDIR"

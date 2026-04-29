@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'ui/screens/home_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // .env asset olarak yuklenir; eksikse bos kalir, Env hata firlatir.
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {
+    // .env yoksa Env okurken kullaniciya net hata gosterir
+  }
   runApp(const CRAnalyzeApp());
 }
 

@@ -1,3 +1,6 @@
+// CLI tool'larin (dart run tool/...) Flutter binding'i olmadan kullandigi yol.
+// UI runtime'da bu kullanilmaz cunku dotenv.load main.dart'ta yapilir.
+
 import 'dart:io';
 
 Map<String, String>? _cached;
@@ -26,19 +29,5 @@ String? readEnv(String key) {
   if (fromPlatform != null && fromPlatform.isNotEmpty) return fromPlatform;
   final fromFile = _load()[key];
   if (fromFile != null && fromFile.isNotEmpty) return fromFile;
-  final fromDefine = _readDefine(key);
-  if (fromDefine != null && fromDefine.isNotEmpty) return fromDefine;
-  return null;
-}
-
-String? _readDefine(String key) {
-  switch (key) {
-    case 'CR_API_TOKEN':
-      const v = String.fromEnvironment('CR_API_TOKEN');
-      return v.isEmpty ? null : v;
-    case 'CR_API_BASE_URL':
-      const v = String.fromEnvironment('CR_API_BASE_URL');
-      return v.isEmpty ? null : v;
-  }
   return null;
 }
